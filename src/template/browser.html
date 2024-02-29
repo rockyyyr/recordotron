@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="./assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="./assets/css/style.css" rel="stylesheet" />
+    </head>
+
+    <body>
+        <!-- <img id="fake-cursor" src="./assets/imgs/cursor.svg" /> -->
+        <div id="main-container" class="main-container">
+            <div class="header">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="nav-container">
+                                <span class="dot" style="background:#ED594A;"></span>
+                                <span class="dot" style="background:#FDD800;"></span>
+                                <span class="dot" style="background:#5AC05A;"></span>
+                                <span>
+                                    <img class="nav-image" src="./assets/imgs/nav.png" />
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-9 searchbar-container">
+                            <div class="search-bar-domain">
+                                <div style="display: flex">
+                                    <div>
+                                        <img class="lock-image" src="./assets/imgs/lock.png" />
+                                    </div>
+                                    <div>
+                                        <div id="searchbar" class="searchbar"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <img class="refresh-image" src="./assets/imgs/refresh.png" />
+                            </div>
+                        </div>
+                        <div class="col share-container">
+                            <img class="share-image" src="./assets/imgs/share.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row tabs">
+                <div id="site-tab" class="col tab tab-hidden">
+                    <img class="close-tab" src="./assets/imgs/x.png" />
+                    <div>
+                        <span id="injectable-tab-image"></span>
+                        <span id="site-tab-title"></span>
+                    </div>
+                </div>
+                <div class="col tab tab-hidden">
+                    <img class="close-tab" src="./assets/imgs/x.png" />
+                    <div>
+                        <img class="tab-image" src="./assets/imgs/gmail.svg" />
+                        <span id="gmail-tab-title">Inbox (4) - neil@firstpageofgoogle.com - Gmail</span>
+                    </div>
+                </div>
+                <div id="map-tab" class="col tab">
+                    <img class="close-tab" src="./assets/imgs/x.png" />
+                    <div>
+                        <img class="tab-image google-image" src="./assets/imgs/google.svg" />
+                        <span id="map-tab-title"></span>
+                    </div>
+                </div>
+            </div>
+            <div id="main-content" class="content">
+                <iframe id="site-iframe" name="site-iframe" data-id="site-tab" class="iframe-content hidden"></iframe>
+                <iframe id="map-iframe" name="map-iframe" data-id="map-tab" class="iframe-content"></iframe>
+            </div>
+        </div>
+        <script src="./assets/js/browser.js"></script>
+    </body>
+
+</html>

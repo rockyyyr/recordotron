@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="style.css" rel="stylesheet" />
+
+        <title>RecordoTron</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="item info-panel">
+                <div class="stat-panel">
+                    <h1>RECORDOTRON</h1>
+                </div>
+                <div class="button-panel">
+                    <button class="button" type="button" id="buttonStart">Start</button>
+                    <button class="button" type="button" id="buttonStop" disabled>Stop</button>
+                </div>
+                <div class="button-panel">
+                    <button class="preview-active" type="button" id="buttonPreview">Preview</button>
+                    <button id="buttonMask">Mask</button>
+                </div>
+                <div class="button-panel">
+                    <button id="uploadButton" disabled>Upload</button>
+                </div>
+            </div>
+            <div class="item preview-container">
+                <img class="alpha-mask" src="alpha-mask-720.png" />
+                <div class="led-box">
+                    <div id="led" class="led-red"></div>
+                    <div id="recording-indicator"></div>
+                </div>
+                <div id="duration"></div>
+                <video autoplay muted playsinline id="preview"></video>
+            </div>
+            <div class="item recording-container hidden">
+                <video playsinline controls id="recording"></video>
+            </div>
+        </div>
+
+        <div id="modal" class="hidden">
+            <h1 id="modal-title">Success!</h1>
+            <p id="modal-content"></p>
+            <button id="modal-button">Ok</button>
+        </div>
+
+        <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+        <script src="script.js"></script>
+    </body>
+
+</html>

@@ -1,0 +1,177 @@
+body {
+    margin: 0;
+    background: rgb(45, 44, 44);
+    /* font-family: "VT323", monospace;
+    font-weight: 400;
+    font-style: normal; */
+    font-family: 'Courier New', Courier, monospace
+}
+
+video {
+    width: 1280px;
+    height: 720px;
+    border-radius: 12px;
+    background: #111111;
+}
+
+h1 {
+    font-size: 40px;
+}
+
+#modal {
+    background: #e0e0e0;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    padding: 15px 30px;
+    transform: translate(-50%, -100%);
+    border-radius: 12px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#modal button {
+    background: rgb(43, 81, 208);
+    color: white;
+    height: 50px;
+    width: 100px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#modal h1 {
+    margin: 10px;
+}
+
+button {
+    border: none;
+    background: rgb(7, 172, 7);
+    color: white;
+    height: 60px;
+    width: 150px;
+    border-radius: 8px;
+    margin: 10px;
+    transition: transform 50ms ease-in;
+}
+
+button:hover:not(:disabled) {
+    transform: scale(1.01);
+}
+
+button:active:not(:disabled) {
+    transform: scale(0.99);
+}
+
+.led-box {
+    position: absolute;
+    bottom: 20px;
+    left: 40px;
+    display: flex;
+    gap: 20px;
+}
+
+#recording-indicator {
+    font-size: 40px;
+    color: red;
+}
+
+.led-red {
+    margin: 0 auto;
+    margin-top: 9px;
+    width: 24px;
+    height: 24px;
+    background-color: red;
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.led-blink {
+    opacity: 1;
+    -webkit-animation: blinkRed 0.5s infinite;
+    -moz-animation: blinkRed 0.5s infinite;
+    -ms-animation: blinkRed 0.5s infinite;
+    -o-animation: blinkRed 0.5s infinite;
+    animation: blinkRed 0.5s infinite;
+}
+
+@keyframes blinkRed {
+    from {
+        background-color: #F00;
+    }
+
+    50% {
+        background-color: #A00;
+        /* box-shadow: rgba(0, 0, 0, 0.05) 0 -1px 7px 1px, inset #802323 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 0; */
+    }
+
+    to {
+        background-color: #F00;
+    }
+}
+
+#duration {
+    position: absolute;
+    color: white;
+    right: 40px;
+    bottom: 20px;
+    font-size: 40px;
+}
+
+#buttonStop {
+    background: rgb(220, 19, 19);
+}
+
+.container {
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+}
+
+.item {
+    margin: 5px;
+}
+
+.info-panel {
+    background: #e0e0e0;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px;
+    height: 375px;
+}
+
+.preview-container {
+    position: relative;
+}
+
+.alpha-mask {
+    position: absolute;
+    border-radius: 12px;
+    top: 0;
+    left: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#buttonPreview {
+    background: rgb(114, 114, 114);
+}
+
+.preview-active {
+    background: rgb(25, 134, 202) !important;
+}
+
+button:disabled {
+    /* background: rgb(63, 63, 63); */
+    opacity: 0.5;
+}
+
+#uploadButton {
+    background: rgb(138, 29, 138)
+}

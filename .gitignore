@@ -1,0 +1,5 @@
+.env
+/test-recordings
+/node_modules
+/recordings
+*.zip
