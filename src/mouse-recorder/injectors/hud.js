@@ -44,7 +44,8 @@ module.exports = {
                 border-radius: 5px;
                 border: 2px solid white;
                 color: white;
-                height: 30px
+                height: 30px;
+                display: none;
             }
 
             .recording-button:active {

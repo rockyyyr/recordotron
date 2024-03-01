@@ -16,7 +16,14 @@
     const modalTitle = document.querySelector('#modal-title');
     const modalContent = document.querySelector('#modal-content');
     const modalButton = document.querySelector('#modal-button');
+    const spinner = document.querySelector('#spinner');
+    const spinnerMessage = document.querySelector('#spinner-message');
+
     let duration = 0;
+    let spinnerInterval = null;
+    let messageInterval = null;
+    let messages = ['UPLOADING', 'PREPARING THE NUKES', 'LAUNCHING', 'ROUNDING UP THE JEWS', 'GASSING UP THE CHAMBER', 'ALLAHU AKBAR'];
+    let messageIndex = 0;
 
     const Modal = {
         open: (title, message) => {
@@ -66,10 +73,6 @@
     preview.srcObject = stream;
     let blob;
 
-    if (!MediaRecorder.isTypeSupported('video/webm')) { // <2>
-        console.warn('video/webm is not supported');
-    }
-
     const mediaRecorder = new MediaRecorder(stream, { // <3>
         mimeType: 'video/webm;codecs=vp9',
     });
@@ -77,8 +80,8 @@
     let durationInterval;
 
     buttonStart.addEventListener('click', async () => {
-        resetVideo();
         await fetch('http://localhost:4141/mouse-recorder/start');
+        resetVideo();
         durationInterval = setInterval(() => {
             duration++;
             durationEl.innerText = formatSeconds(duration);
@@ -96,12 +99,13 @@
         led.classList.add('led-blink');
     });
 
-    buttonStop.addEventListener('click', () => {
+    buttonStop.addEventListener('click', async () => {
         if (durationInterval) {
             clearInterval(durationInterval);
             durationInterval = null;
         }
 
+        await fetch('http://localhost:4141/mouse-recorder/stop');
         mediaRecorder.stop(); // <5>
         buttonStart.removeAttribute('disabled');
         buttonStop.setAttribute('disabled', '');
@@ -117,16 +121,18 @@
     });
 
     upload.addEventListener('click', async event => {
-        console.log(blob);
-
         try {
+            showSpinner();
+
             const response = await fetch('http://localhost:4141/mouse-recorder/upload', {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/octet-stream",
+                    "Content-Type": "application/octet-stream"
                 },
                 body: blob,
             });
+
+            hideSpinner();
 
             if (response.status !== 201) {
                 console.warn(response.status);
@@ -141,6 +147,7 @@
 
         } catch (err) {
             console.error(err);
+            Modal.open('Somethings fucked', err);
         }
     });
 
@@ -159,4 +166,31 @@
         return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s;
     }
 
+    function showSpinner() {
+        spinner.classList.remove('hidden');
+        spinnerInterval = setInterval(() => {
+            if (spinnerMessage.style.opacity === '1') {
+                spinnerMessage.style.opacity = 0;
+            } else {
+                spinnerMessage.style.opacity = 1;
+            }
+        }, 1000);
+        spinnerMessage.innerText = messages[0];
+        messageInterval = setInterval(() => {
+            spinnerMessage.innerText = messages[++messageIndex % messages.length];
+        }, 20000);
+    }
+
+    function hideSpinner() {
+        spinner.classList.add('hidden');
+        if (spinnerInterval) {
+            clearInterval(spinnerInterval);
+            spinnerInterval = null;
+        }
+        if (messageInterval) {
+            clearInterval(messageInterval);
+            messageInterval = null;
+        }
+        messageIndex = 0;
+    }
 })();

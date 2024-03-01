@@ -6,6 +6,7 @@ const { performance } = require('perf_hooks');
 const Path = require('path');
 const express = require('express');
 const recordingHUDInjector = require('./injectors/hud');
+const google = require('../google-drive/api');
 
 const injectors = Path.join(PROJECT_DIR, 'src', 'mouse-recorder', 'injectors');
 
@@ -41,10 +42,11 @@ module.exports = class Mouse {
         this.prevEvent = { x: -1, y: -1 };
         this.recordingPath = recording;
         this.scrollHeights = {};
-        this.outputFilePath = null;
+        this.outputPath = null;
 
         this.server = server || express();
-        this.serverInstance;
+        this.server.use(middleware);
+        this.serverInstance = null;
     }
 
     initServer() {
@@ -69,7 +71,6 @@ module.exports = class Mouse {
                     }
                     console.log('stopping');
                     this.stop();
-                    await this.doExit();
                 }
 
             } catch (error) {
@@ -85,10 +86,9 @@ module.exports = class Mouse {
                 const outputFilePath = Path.join(this.outputPath, "recording.webm");
 
                 await this._handleVideoUpload(req, outputFilePath);
-                console.log('video uploaded');
-
                 await this.doExit();
-                console.log('mouse recording saved');
+
+                await google.uploadZip(this.outputPath);
 
                 return res.status(201).end();
 
@@ -103,9 +103,10 @@ module.exports = class Mouse {
     _handleVideoUpload(req, outputPath) {
         return new Promise((resolve, reject) => {
             const writeStream = fs.createWriteStream(outputPath);
-            req.on('data', (chunk) => writeStream.write(chunk));
+            req.on('data', chunk => {
+                writeStream.write(chunk);
+            });
             req.on('end', () => {
-                console.log('received end');
                 writeStream.end();
                 resolve();
             });
@@ -175,13 +176,14 @@ module.exports = class Mouse {
 
         const recordingStart = Date.now();
 
-        while (true) {
+        while (!this.stopped) {
             const start = performance.now();
             const { x, y } = robot.getMousePos();
             this.events.push({ x, y, time: Date.now(), timeline: Date.now() - recordingStart });
             const duration = performance.now() - start;
             await this._delayFrame(delay - duration);
         }
+        console.log('recording finished');
     }
 
     async enableCursor() {
@@ -298,9 +300,8 @@ module.exports = class Mouse {
         }
     }
 
-    async stop() {
+    stop() {
         this.stopped = true;
-        await this.page.evaluate('window.mouseRecorder.clicks = []');
     }
 
     disconnect() {
@@ -319,7 +320,8 @@ module.exports = class Mouse {
 
     async doExit() {
         if (this.clickInjected) {
-            this.clicks = await this.page.evaluate('window.mouseRecorder.clicks');
+            this.clicks = await this.page.evaluate('window.mouseRecorder.getClicks()');
+
         }
 
         if (this.scrollInjected) {
@@ -347,7 +349,7 @@ module.exports = class Mouse {
             this._mergeScrolls();
         }
 
-        fs.writeFileSync(Path.join(this.outputFilePath, 'recording.json'), JSON.stringify({
+        fs.writeFileSync(Path.join(this.outputPath, 'recording.json'), JSON.stringify({
             config: this.writeConfig(),
             events: this.events,
         }));
@@ -371,8 +373,16 @@ module.exports = class Mouse {
         let clickIndex = 0;
 
         const clickEvents = this.clicks;
-        const clickLength = clickEvents.length;
+        const clickLength = this.clicks.length;
         const eventLength = this.events.length;
+
+        console.log(this.clicks);
+        console.log(this.clicks.length);
+
+        console.log('****************');
+
+
+
 
         for (let i = 0; i < eventLength - 1; i++) {
             const click = clickEvents[clickIndex];
@@ -383,7 +393,7 @@ module.exports = class Mouse {
                 clickIndex++;
             }
 
-            if (clickIndex === clickLength - 1) {
+            if (clickIndex === clickLength) {
                 return;
             }
         }
@@ -402,6 +412,13 @@ module.exports = class Mouse {
 
             let scrollIndex = 0;
 
+
+            console.log(scrolls);
+            console.log(scrolls.length);
+            console.log('*************************************');
+
+
+
             for (let i = 0; i < eventLength; i++) {
                 const scroll = scrolls[scrollIndex];
                 const event = this.events[i];
@@ -411,7 +428,7 @@ module.exports = class Mouse {
                     scrollIndex++;
                 }
 
-                if (scrollIndex === scrollLength - 1) {
+                if (scrollIndex === scrollLength) {
                     break;
                 }
             }
@@ -501,4 +518,12 @@ function getDate() {
         .replace(/,|\./g, '')
         .replace(/\s/g, '_')
         .replaceAll(':', '-');
+}
+
+function middleware(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
 }

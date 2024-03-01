@@ -1,4 +1,4 @@
-const { PROJECT_DIR } = process.env;
+const { PROJECT_DIR, SKIP_MAP_SEARCH } = process.env;
 
 const Path = require('path');
 const { chromium } = require('playwright-chromium');
@@ -61,7 +61,7 @@ const testDomain = {
 
         exitListeners(browser, page, mouse);
 
-        const mapIframe = await setupMapIframe(page, domain, keyword, location);
+        const mapIframe = await setupMapIframe(page, domain, keyword, location, SKIP_MAP_SEARCH === '1');
         await mouse.addTarget(mapIframe, 'map-iframe', mapElement);
         await page.locator('#site-tab').click();
 
@@ -106,7 +106,8 @@ function exitListeners(browser, page, mouse) {
 async function removeIframeHeader(page) {
     await page.route('**/*', async route => {
         try {
-            if (route.request().url().startsWith('file://')) {
+            const url = route.request().url();
+            if (url.startsWith('file://') || url.includes('localhost')) {
                 await route.continue();
                 return;
             }
