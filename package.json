@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "./update.sh && node app.js",
     "zip": "zip -r standalone-mouse-recorder.zip . -x \"./node_modules**\" -x \"./browser-data**\"",
     "test": "nodemon src/test-server.js"
   },

@@ -1,6 +1,6 @@
 .env
 /test-recordings
 /node_modules
-/recordings
+/recordings/**
 *.zip
 private-key.json
