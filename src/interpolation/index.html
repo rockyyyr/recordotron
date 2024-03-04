@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css" />
+        <title>Interpolation</title>
+    </head>
+
+    <body>
+
+        <div id="button-panel">
+            <button onclick="toggleFullPath()">*</button>
+            <button onclick="right()">+</button>
+            <button onclick="left()">-</button>
+            <button onclick="reset()">0</button>
+            <button onclick="play()">></button>
+        </div>
+
+        <input type="range" id="slider" min="0" step="1" value="0">
+        <!-- <input type="range" id="numSlider" min="0" step="1" value="0"> -->
+
+        <canvas id="plot"></canvas>
+
+        <script src="recording.js"></script>
+        <script src="interpolation.js"></script>
+        <script src="plotter.js"></script>
+        <script src="interpolation.js"></script>
+
+    </body>
+
+</html>

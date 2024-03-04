@@ -1,4 +1,4 @@
-const { PORT, PROJECT_DIR } = process.env;
+const { PORT, PROJECT_DIR, NO_UPLOAD } = process.env;
 
 const robot = require('robotjs');
 const fs = require('fs');
@@ -66,9 +66,6 @@ module.exports = class Mouse {
             try {
                 res.end();
                 if (!this.stopped) {
-                    if (!fs.existsSync(this.outputPath)) {
-                        fs.mkdirSync(this.outputPath);
-                    }
                     console.log('stopping');
                     this.stop();
                 }
@@ -88,7 +85,9 @@ module.exports = class Mouse {
                 await this._handleVideoUpload(req, outputFilePath);
                 await this.doExit();
 
-                await google.uploadZip(this.outputPath);
+                if (!NO_UPLOAD) {
+                    await google.uploadZip(this.outputPath);
+                }
 
                 return res.status(201).end();
 
@@ -149,41 +148,59 @@ module.exports = class Mouse {
     }
 
     async record() {
-        this.stopped = false;
-        this.outputPath = Path.join(this.dataPath, getDate());
+        return new Promise(async (resolve) => {
+            this.stopped = false;
+            this.outputPath = Path.join(this.dataPath, getDate());
 
-        if (!this.hudInjected) {
-            await this.injectRecordingHUD();
-        }
-        await this.countDown();
-
-        const delay = this.calculateDelay(this.fps);
-
-        const recorders = [];
-
-        if (this.clickInjected) {
-            await this.page.evaluate('window.mouseRecorder.clicks = []');
-            recorders.push(this.page.evaluate(`window.mouseRecorder.recordClicks()`));
-        }
-
-        if (this.scrollInjected) {
-            for (const { frame, element } of this.targets) {
-                recorders.push(frame.evaluate(`window.mouseRecorder.recordScrolls(${element || ''})`));
+            if (!this.hudInjected) {
+                await this.injectRecordingHUD();
             }
-        }
+            await this.countDown();
 
-        await Promise.all(recorders);
+            const delay = this.calculateDelay(this.fps);
 
-        const recordingStart = Date.now();
+            const recorders = [];
 
-        while (!this.stopped) {
-            const start = performance.now();
-            const { x, y } = robot.getMousePos();
-            this.events.push({ x, y, time: Date.now(), timeline: Date.now() - recordingStart });
-            const duration = performance.now() - start;
-            await this._delayFrame(delay - duration);
-        }
-        console.log('recording finished');
+            if (this.clickInjected) {
+                recorders.push(this.page.evaluate(`window.mouseRecorder.recordClicks()`));
+            }
+
+            if (this.scrollInjected) {
+                for (const { frame, element } of this.targets) {
+                    recorders.push(frame.evaluate(`window.mouseRecorder.recordScrolls(${element || ''})`));
+                }
+            }
+
+            await Promise.all(recorders);
+
+            const recordingStart = performance.now();
+
+            const interval = setInterval(() => {
+                const { x, y } = robot.getMousePos();
+                this.events.push({
+                    x,
+                    y,
+                    pTime: performance.now(),
+                    time: Date.now(),
+                    timeline: performance.now() - recordingStart
+                });
+
+                if (this.stopped) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, delay);
+        });
+
+        // while (!this.stopped) {
+
+        // const start = performance.now();
+        // const { x, y } = robot.getMousePos();
+        // this.events.push({ x, y, time: Date.now(), timeline: Date.now() - recordingStart });
+        // const duration = performance.now() - start;
+        // await this._delayFrame(delay - duration);
+        // }
+        // console.log('recording finished');
     }
 
     async enableCursor() {
@@ -321,7 +338,6 @@ module.exports = class Mouse {
     async doExit() {
         if (this.clickInjected) {
             this.clicks = await this.page.evaluate('window.mouseRecorder.getClicks()');
-
         }
 
         if (this.scrollInjected) {
@@ -338,9 +354,6 @@ module.exports = class Mouse {
     }
 
     async writeToFile() {
-        // if (!fs.existsSync(this.outputFilePath)) {
-        //     fs.mkdirSync(this.outputFilePath);
-        // }
         if (this.clicks.length > 0) {
             this._mergeClicks();
         }
@@ -356,7 +369,7 @@ module.exports = class Mouse {
     }
 
     calculateDelay(fps) {
-        return (1 / fps) * 1000;
+        return 1000 / fps;
     }
 
     setFps(fps) {
@@ -376,14 +389,6 @@ module.exports = class Mouse {
         const clickLength = this.clicks.length;
         const eventLength = this.events.length;
 
-        console.log(this.clicks);
-        console.log(this.clicks.length);
-
-        console.log('****************');
-
-
-
-
         for (let i = 0; i < eventLength - 1; i++) {
             const click = clickEvents[clickIndex];
             const event = this.events[i];
@@ -391,6 +396,7 @@ module.exports = class Mouse {
             if (click.time < event.time) {
                 this.events[i].click = click;
                 clickIndex++;
+
             }
 
             if (clickIndex === clickLength) {
@@ -411,13 +417,6 @@ module.exports = class Mouse {
             const scrollLength = scrolls.length;
 
             let scrollIndex = 0;
-
-
-            console.log(scrolls);
-            console.log(scrolls.length);
-            console.log('*************************************');
-
-
 
             for (let i = 0; i < eventLength; i++) {
                 const scroll = scrolls[scrollIndex];

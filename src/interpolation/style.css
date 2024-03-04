@@ -1,0 +1,60 @@
+body {
+    margin: 10px;
+    background: #070707;
+    overflow: hidden;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    /* background: rgb(185, 184, 184); */
+    border-radius: 12px;
+    /* border: 1px solid lightgrey; */
+    overflow: scroll;
+}
+
+#button-panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 30px;
+    top: 50px;
+    gap: 10px;
+}
+
+#button-panel button {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid lightgrey;
+    transition: all 100ms ease-out;
+}
+
+#button-panel button:hover {
+    border: 2px solid lightgrey;
+}
+
+#button-panel button:active {
+    transform: scale(0.95);
+}
+
+#slider {
+    /* position: absolute;
+    width: 600px;
+    top: 5px;
+    left: calc(50% - 300px); */
+    position: absolute;
+    width: 1996px;
+    bottom: 20px;
+    left: 30px;
+    height: 200px;
+    margin-bottom: -100px;
+}
+
+#numSlider {
+    position: absolute;
+    width: 1000px;
+    top: 80px;
+    left: calc(50% - 500px);
+}
