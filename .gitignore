@@ -4,3 +4,5 @@
 /recordings/**
 *.zip
 private-key.json
+.DS_Store
+
